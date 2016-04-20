@@ -44,3 +44,4 @@ public class URLImageGetter implements Html.ImageGetter{
     }
 }
 ```
+![image](https://github.com/babylikebird/htmlImage/blob/master/picture.png)
