@@ -9,7 +9,10 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.assist.ViewScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.imageaware.NonViewAware;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 /**
@@ -20,34 +23,34 @@ public class URLImageGetter implements Html.ImageGetter{
     private TextView textView;
     Context context;
     private DisplayImageOptions options;
-    public URLImageGetter(String shopDeString,Context context,TextView textView) {
+    public URLImageGetter(String shopDeString,Context context,TextView textView,DisplayImageOptions options) {
         this.shopDeString = shopDeString;
         this.context = context;
         this.textView = textView;
-        options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.mipmap.ic_launcher)
-                .showImageForEmptyUri(R.mipmap.ic_launcher)
-                .showImageOnFail(R.mipmap.ic_launcher)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(true)
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .displayer(new FadeInBitmapDisplayer(300))
-                .build();
+        this.options = options;
     }
     @Override
     public Drawable getDrawable(String source) {
 
         final URLDrawable urlDrawable = new URLDrawable();
-        ImageLoader.getInstance().loadImage(source,options, new SimpleImageLoadingListener() {
+        ImageSize imageSize = new ImageSize(480,320);
+        NonViewAware nonViewAware = new NonViewAware(imageSize, ViewScaleType.CROP);
+        ImageLoader.getInstance().displayImage(source,nonViewAware,options,new SimpleImageLoadingListener(){
             @Override
             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                super.onLoadingComplete(imageUri, view, loadedImage);
                 urlDrawable.bitmap = loadedImage;
                 urlDrawable.setBounds(0, 0, loadedImage.getWidth(), loadedImage.getHeight());
                 textView.invalidate();
                 textView.setText(textView.getText()); // 解决图文重叠
             }
         });
+        /*ImageLoader.getInstance().loadImage(source,options, new SimpleImageLoadingListener() {
+            @Override
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+
+            }
+        });*/
         return urlDrawable;
     }
 }
